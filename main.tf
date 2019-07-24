@@ -32,7 +32,7 @@ resource "aws_vpc" "this" {
 
   tags = merge(
     {
-      "Name" = format("%s", var.name)
+      "Name" = format("%s-%s-%s-%s-vpc", var.component, var.stack, var.stage, var.region)
     },
     var.tags,
     var.vpc_tags,
@@ -61,7 +61,7 @@ resource "aws_vpc_dhcp_options" "this" {
 
   tags = merge(
     {
-      "Name" = format("%s", var.name)
+      "Name" = format("%s-%s-%s-%s-vpc-dhcp-options", var.component, var.stack, var.stage, var.region)
     },
     var.tags,
     var.dhcp_options_tags,
@@ -88,7 +88,7 @@ resource "aws_internet_gateway" "this" {
 
   tags = merge(
     {
-      "Name" = format("%s", var.name)
+      "Name" = format("%s-%s-%s-%s-igw", var.component, var.stack, var.stage, var.region)
     },
     var.tags,
     var.igw_tags,
@@ -105,7 +105,7 @@ resource "aws_route_table" "public" {
 
   tags = merge(
     {
-      "Name" = format("%s-${var.public_subnet_suffix}", var.name)
+      "Name" = format("%s-%s-%s-%s-public-rt", var.component, var.stack, var.stage, var.region)
     },
     var.tags,
     var.public_route_table_tags,
@@ -135,11 +135,7 @@ resource "aws_route_table" "private" {
 
   tags = merge(
     {
-      "Name" = var.single_nat_gateway ? "${var.name}-${var.private_subnet_suffix}" : format(
-        "%s-${var.private_subnet_suffix}-%s",
-        var.name,
-        element(var.azs, count.index),
-      )
+      "Name" = format("%s-%s-%s-%s-private-rt", var.component, var.stack, var.stage, var.single_nat_gateway ? var.region : element(var.azs, count.index))
     },
     var.tags,
     var.private_route_table_tags,
@@ -164,7 +160,7 @@ resource "aws_route_table" "database" {
     var.tags,
     var.database_route_table_tags,
     {
-      "Name" = "${var.name}-${var.database_subnet_suffix}"
+      "Name" = format("%s-%s-%s-%s-%s-rt", var.component, var.stack, var.stage, var.region, var.database_subnet_suffix)
     },
   )
 }
@@ -205,7 +201,7 @@ resource "aws_route_table" "redshift" {
     var.tags,
     var.redshift_route_table_tags,
     {
-      "Name" = "${var.name}-${var.redshift_subnet_suffix}"
+	  "Name" = format("%s-%s-%s-%s-%s-rt", var.component, var.stack, var.stage, var.region, var.redshift_subnet_suffix)
     },
   )
 }
@@ -222,7 +218,7 @@ resource "aws_route_table" "elasticache" {
     var.tags,
     var.elasticache_route_table_tags,
     {
-      "Name" = "${var.name}-${var.elasticache_subnet_suffix}"
+	  "Name" = format("%s-%s-%s-%s-%s-rt", var.component, var.stack, var.stage, var.region, var.elasticache_subnet_suffix)
     },
   )
 }
@@ -237,7 +233,7 @@ resource "aws_route_table" "intra" {
 
   tags = merge(
     {
-      "Name" = "${var.name}-${var.intra_subnet_suffix}"
+	  "Name" = format("%s-%s-%s-%s-%s-rt", var.component, var.stack, var.stage, var.region, var.intra_subnet_suffix)
     },
     var.tags,
     var.intra_route_table_tags,
@@ -257,11 +253,7 @@ resource "aws_subnet" "public" {
 
   tags = merge(
     {
-      "Name" = format(
-        "%s-${var.public_subnet_suffix}-%s",
-        var.name,
-        element(var.azs, count.index),
-      )
+	  "Name" = format("%s-%s-%s-%s-public-subnet", var.component, var.stack, var.stage, element(var.azs, count.index))
     },
     var.tags,
     var.public_subnet_tags,
@@ -280,11 +272,7 @@ resource "aws_subnet" "private" {
 
   tags = merge(
     {
-      "Name" = format(
-        "%s-${var.private_subnet_suffix}-%s",
-        var.name,
-        element(var.azs, count.index),
-      )
+	  "Name" = format("%s-%s-%s-%s-private-subnet", var.component, var.stack, var.stage, element(var.azs, count.index))
     },
     var.tags,
     var.private_subnet_tags,
@@ -303,11 +291,7 @@ resource "aws_subnet" "database" {
 
   tags = merge(
     {
-      "Name" = format(
-        "%s-${var.database_subnet_suffix}-%s",
-        var.name,
-        element(var.azs, count.index),
-      )
+	  "Name" = format("%s-%s-%s-%s-%s-%s-subnet", var.component, var.stack, var.stage, var.region, var.database_subnet_suffix, element(var.azs, count.index))
     },
     var.tags,
     var.database_subnet_tags,
@@ -323,7 +307,7 @@ resource "aws_db_subnet_group" "database" {
 
   tags = merge(
     {
-      "Name" = format("%s", var.name)
+      "Name" = format("%s-%s-%s-%s-%s-subnet-group", var.component, var.stack, var.stage, var.region, var.database_subnet_suffix)
     },
     var.tags,
     var.database_subnet_group_tags,
@@ -342,11 +326,7 @@ resource "aws_subnet" "redshift" {
 
   tags = merge(
     {
-      "Name" = format(
-        "%s-${var.redshift_subnet_suffix}-%s",
-        var.name,
-        element(var.azs, count.index),
-      )
+	  "Name" = format("%s-%s-%s-%s-%s-%s-subnet", var.component, var.stack, var.stage, var.region, var.redshift_subnet_suffix, element(var.azs, count.index))
     },
     var.tags,
     var.redshift_subnet_tags,
@@ -362,7 +342,7 @@ resource "aws_redshift_subnet_group" "redshift" {
 
   tags = merge(
     {
-      "Name" = format("%s", var.name)
+	  "Name" = format("%s-%s-%s-%s-%s-subnet-group", var.component, var.stack, var.stage, var.region, var.redshift_subnet_suffix)
     },
     var.tags,
     var.redshift_subnet_group_tags,
@@ -381,11 +361,7 @@ resource "aws_subnet" "elasticache" {
 
   tags = merge(
     {
-      "Name" = format(
-        "%s-${var.elasticache_subnet_suffix}-%s",
-        var.name,
-        element(var.azs, count.index),
-      )
+	  "Name" = format("%s-%s-%s-%s-%s-%s-subnet", var.component, var.stack, var.stage, var.region, var.elasticache_subnet_suffix, element(var.azs, count.index))
     },
     var.tags,
     var.elasticache_subnet_tags,
@@ -412,11 +388,7 @@ resource "aws_subnet" "intra" {
 
   tags = merge(
     {
-      "Name" = format(
-        "%s-${var.intra_subnet_suffix}-%s",
-        var.name,
-        element(var.azs, count.index),
-      )
+	  "Name" = format("%s-%s-%s-%s-%s-%s-subnet", var.component, var.stack, var.stage, var.region, var.intra_subnet_suffix, element(var.azs, count.index))
     },
     var.tags,
     var.intra_subnet_tags,
@@ -462,7 +434,7 @@ resource "aws_default_network_acl" "this" {
 
   tags = merge(
     {
-      "Name" = format("%s", var.default_network_acl_name)
+      "Name" = format("%s-%s-%s-%s-%s",var.component, var.stack, var.stage, var.region, var.default_network_acl_name)
     },
     var.tags,
     var.default_network_acl_tags,
@@ -484,7 +456,7 @@ resource "aws_network_acl" "public" {
 
   tags = merge(
     {
-      "Name" = format("%s-${var.public_subnet_suffix}", var.name)
+      "Name" = format("%s-%s-%s-%s-%s-public-network-acl", var.component, var.stack, var.stage, var.region, var.name)
     },
     var.tags,
     var.public_acl_tags,
@@ -530,7 +502,7 @@ resource "aws_network_acl" "private" {
 
   tags = merge(
     {
-      "Name" = format("%s-${var.private_subnet_suffix}", var.name)
+	  "Name" = format("%s-%s-%s-%s-%s-private-network-acl", var.component, var.stack, var.stage, var.region, var.name)
     },
     var.tags,
     var.private_acl_tags,
@@ -576,7 +548,7 @@ resource "aws_network_acl" "intra" {
 
   tags = merge(
     {
-      "Name" = format("%s-${var.intra_subnet_suffix}", var.name)
+	  "Name" = format("%s-%s-%s-%s-%s-%s", var.component, var.stack, var.stage, var.region, var.name, var.intra_subnet_suffix)	
     },
     var.tags,
     var.intra_acl_tags,
@@ -622,7 +594,7 @@ resource "aws_network_acl" "database" {
 
   tags = merge(
     {
-      "Name" = format("%s-${var.database_subnet_suffix}", var.name)
+	  "Name" = format("%s-%s-%s-%s-%s-%s", var.component, var.stack, var.stage, var.region, var.name, var.database_subnet_suffix)	
     },
     var.tags,
     var.database_acl_tags,
@@ -668,7 +640,7 @@ resource "aws_network_acl" "redshift" {
 
   tags = merge(
     {
-      "Name" = format("%s-${var.redshift_subnet_suffix}", var.name)
+	  "Name" = format("%s-%s-%s-%s-%s-%s", var.component, var.stack, var.stage, var.region, var.name, var.redshift_subnet_suffix)
     },
     var.tags,
     var.redshift_acl_tags,
@@ -714,7 +686,7 @@ resource "aws_network_acl" "elasticache" {
 
   tags = merge(
     {
-      "Name" = format("%s-${var.elasticache_subnet_suffix}", var.name)
+	  "Name" = format("%s-%s-%s-%s-%s-%s", var.component, var.stack, var.stage, var.region, var.name, var.elasticache_subnet_suffix)
     },
     var.tags,
     var.elasticache_acl_tags,
@@ -774,11 +746,7 @@ resource "aws_eip" "nat" {
 
   tags = merge(
     {
-      "Name" = format(
-        "%s-%s",
-        var.name,
-        element(var.azs, var.single_nat_gateway ? 0 : count.index),
-      )
+	  "Name" = format("%s-%s-%s-%s-nat-gateway-eip", var.component, var.stack, var.stage, element(var.azs, var.single_nat_gateway ? 0 : count.index))
     },
     var.tags,
     var.nat_eip_tags,
@@ -799,11 +767,7 @@ resource "aws_nat_gateway" "this" {
 
   tags = merge(
     {
-      "Name" = format(
-        "%s-%s",
-        var.name,
-        element(var.azs, var.single_nat_gateway ? 0 : count.index),
-      )
+	  "Name" = format("%s-%s-%s-%s-nat-gateway", var.component, var.stack, var.stage, element(var.azs, var.single_nat_gateway ? 0 : count.index))
     },
     var.tags,
     var.nat_gateway_tags,

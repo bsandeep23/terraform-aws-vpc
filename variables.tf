@@ -1,3 +1,23 @@
+variable "component" {
+  description = "Component for which the vpc is being created. for eg: devops"
+  type = string
+}
+
+variable "stack" {
+   description = "Subcomponent . for eg: network"
+   type = string
+}
+
+variable "stage" {
+   description = "Stage for eg: dev, stg"
+   type = string
+}
+
+variable "region" {
+   description = "region in which it is being deployed"
+   type = string
+}  
+
 variable "create_vpc" {
   description = "Controls if VPC should be created (it affects almost all resources)"
   type        = bool
